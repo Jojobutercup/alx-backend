@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
+"""BaseCaching module
 
-"""caching """
+This module provides the base caching functionality
+for other caching classes.
+It defines the `BaseCaching` class which serves as
+the parent class for caching systems.
+
+Classes:
+- BaseCaching: Parent class for caching systems.
+
+"""
+
 from base_caching import BaseCaching
 """import parent file"""
 
 
 class BasicCache(BaseCaching):
-    """ BasicCache inherits the BaseChaching blueprint """
+    # BasiccCache Object
+    """ BasicCache inherits the BaseChaching blueprint
+    Methods:
+         __init__(self) initialize  self
+         print_cache(self) print values
+    """
     def __init__(self):
         """ define an __init__ method,
         this __init__ method is called when a new object
@@ -24,14 +39,30 @@ class BasicCache(BaseCaching):
             print("{}: {}".format(key, self.cache_data.get(key)))
 
     def put(self, key, item):
-        """ define a put function that allows items
-        be put in the dictionary """
+        """ defines a put function that allows items
+        be put in the dictionary
+
+        Args:
+            key (str): Description of key.
+            item (str): Description of item
+
+        Returns:
+            Nothing: if key not in dictionary
+        """
         if key is None or item is None:
             return
         self.cache_data[key] = item
 
     def get(self, key):
-        """ define a funtion to allow items be gotten """
+        """ define a funtion to allow items be gotten
+         Args:
+            key (str): Description of key.
+            item (str): Description of item
+
+        Returns:
+            None: if key not in dictionary
+            value: if key in dicitionary
+        """
         if key not in self.cache_data:
             return None
         else:
