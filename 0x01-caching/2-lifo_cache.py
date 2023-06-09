@@ -1,46 +1,40 @@
 #!/usr/bin/env python3
-"""LIFO Cache module
-
-This module provides the LIFO (Last-In-First-Out) caching functionality.
-It defines the `LIFOCache` class that inherits from `BaseCaching`.
-
-Classes:
-- LIFOCache: Caching system that uses the LIFO algorithm.
-
-"""
+"""LIFO Cache"""
 from base_caching import BaseCaching
 
 
 class LIFOCache(BaseCaching):
-    """LIFO Cache class"""
-
+    """ Last In First Out (stack)"""
     def __init__(self):
-        """Initializes a new instance of LIFOCache"""
+        """" constructor"""
         super().__init__()
+        self.stack = []
 
     def put(self, key, item):
-        """Adds an item to the cache"""
-        # Implementation goes here
-
-    def get(self, key):
-        """Retrieves an item from the cache"""
-        # Implementation goes here
-
-    def put(self, key, item):
-        """Adds an item to the cache"""
+        """assign to the dictionary the item value for key key """
         if key is None or item is None:
             return
 
-        if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-            last_key = list(self.cache_data.keys())[-1]
-            self.cache_data.pop(last_key)
-            print("DISCARD:", last_key)
-
         self.cache_data[key] = item
 
+        if len(self.cache_data) > self.MAX_ITEMS:
+            discard = self.stack.pop()
+            del self.cache_data[discard]
+            print("DISCARD: {}".format(discard))
+
+        if key not in self.stack:
+            self.stack.append(key)
+        else:
+            self.add_as_last_in(key=key)
+
     def get(self, key):
-        """Retrieves an item from the cache"""
+        """ return value from self.cache_data linked to key"""
         if key is None or key not in self.cache_data:
             return None
-
         return self.cache_data[key]
+
+    def add_as_last_in(self, key):
+        """Move an element to the end of the list"""
+        if self.stack[-1] != key:
+            self.stack.remove(key)
+            self.stack.append(key)

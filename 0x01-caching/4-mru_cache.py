@@ -1,47 +1,41 @@
 #!/usr/bin/env python3
-"""
-MRU Cache module
-"""
+"""MRU Caching"""
 from base_caching import BaseCaching
 
 
 class MRUCache(BaseCaching):
-    """
-    MRU Cache class
-    """
-
+    """ LIFO """
     def __init__(self):
-        """
-        Initializes the MRU Cache instance
-        """
+        """" constructor"""
         super().__init__()
-        self.recently_used_keys = []
+        self.stack = []
 
     def put(self, key, item):
-        """
-        Adds an item to the cache
-        """
+        """assign to the dictionary the item value for key key """
         if key is None or item is None:
             return
 
-        if key in self.cache_data:
-            self.recently_used_keys.remove(key)
-        elif len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-            mru_key = self.recently_used_keys.pop()
-            del self.cache_data[mru_key]
-            print("DISCARD:", mru_key)
-
         self.cache_data[key] = item
-        self.recently_used_keys.append(key)
+
+        if len(self.cache_data) > self.MAX_ITEMS:
+            discard = self.stack.pop()
+            del self.cache_data[discard]
+            print("DISCARD: {}".format(discard))
+
+        if key not in self.stack:
+            self.stack.append(key)
+        else:
+            self.add_as_last_in(key=key)
 
     def get(self, key):
-        """
-        Retrieves an item from the cache
-        """
-        if key is None or key not in self.cache_data:
-            return None
+        """ return value from self.cache_data linked to key"""
+        value = self.cache_data.get(key, None)
+        if value is not None:
+            self.add_as_last_in(key=key)
+        return value
 
-        self.recently_used_keys.remove(key)
-        self.recently_used_keys.append(key)
-
-        return self.cache_data[key]
+    def add_as_last_in(self, key):
+        """Move an element to the end of the list"""
+        if self.stack[-1] != key:
+            self.stack.remove(key)
+            self.stack.append(key)

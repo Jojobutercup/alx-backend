@@ -1,61 +1,65 @@
 #!/usr/bin/env python3
-"""
-LFU Cache module
-"""
+""" BasicCaching module"""
 from base_caching import BaseCaching
 
 
 class LFUCache(BaseCaching):
-    """
-    LFU Cache class
-    """
+    """LIFO Cache"""
 
     def __init__(self):
-        """
-        Initializes the LFU Cache instance
-        """
+        """Init the instance"""
         super().__init__()
-        self.frequency = {}
-        self.min_frequency = 1
+        self.stack = []
+        self.stack_count = {}
 
     def put(self, key, item):
-        """
-        Adds an item to the cache
-        """
+        """Assing to a dictionary the item value for the key key."""
         if key is None or item is None:
             return
 
-        if key in self.cache_data:
-            self.cache_data[key] = item
-            self.frequency[key] += 1
-        else:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                min_freq_keys = [
-                    k for k, v in self.frequency.items()
-                    if v == self.min_frequency
-                ]
-                if min_freq_keys:
-                    lru_key = min_freq_keys.pop(0)
-                    del self.cache_data[lru_key]
-                    del self.frequency[lru_key]
-                    print("DISCARD:", lru_key)
-                else:
-                    lru_key = min(self.frequency, key=self.frequency.get)
-                    del self.cache_data[lru_key]
-                    del self.frequency[lru_key]
-                    print("DISCARD:", lru_key)
+        self.cache_data[key] = item
 
-            self.cache_data[key] = item
-            self.frequency[key] = 1
-            self.min_frequency = 1
+        item_count = self.stack_count.get(key, None)
+
+        if item_count is not None:
+            self.stack_count[key] += 1
+        else:
+            self.stack_count[key] = 1
+
+        if len(self.cache_data) > self.MAX_ITEMS:
+            discard = self.stack.pop(0)
+            del self.stack_count[discard]
+            del self.cache_data[discard]
+            print("DISCARD: {}".format(discard))
+
+        if key not in self.stack:
+            self.stack.insert(0, key)
+
+        self.move_to_right(item=key)
 
     def get(self, key):
-        """
-        Retrieves an item from the cache
-        """
-        if key is None or key not in self.cache_data:
-            return None
+        """ return the value in self.cache_data linked to key."""
+        value = self.cache_data.get(key, None)
+        if value is not None:
+            self.stack_count[key] += 1
+            self.move_to_right(item=key)
 
-        self.frequency[key] += 1
+        return value
 
-        return self.cache_data[key]
+    def move_to_right(self, item):
+        """Add 1 for all elements less the key"""
+        length = len(self.stack)
+
+        idx = self.stack.index(item)
+        item_count = self.stack_count[item]
+
+        for i in range(idx, length):
+            if i != (length - 1):
+                nxt = self.stack[i + 1]
+                nxt_count = self.stack_count[nxt]
+
+                if nxt_count > item_count:
+                    break
+
+        self.stack.insert(i + 1, item)
+        self.stack.remove(item)

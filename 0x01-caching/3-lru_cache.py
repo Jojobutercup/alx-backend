@@ -1,51 +1,41 @@
 #!/usr/bin/env python3
-"""3-lru_cache
-
-This module implements the LRUCache class,
-which is a caching system based on the LRU algorithm.
-
-"""
+"""LRU Caching"""
 from base_caching import BaseCaching
 
 
 class LRUCache(BaseCaching):
-    """LRUCache class
-
-    Inherits from BaseCaching and implements
-    a caching system using the LRU algorithm.
-
-    """
-
+    """ Least Recently Used Caching system"""
     def __init__(self):
-        """Initializes the LRUCache instance"""
+        """" constructor"""
         super().__init__()
-        self.lru_list = []
+        self.stack = []
 
     def put(self, key, item):
-        """Adds an item to the cache"""
+        """assign to the dictionary the item value for key key """
         if key is None or item is None:
             return
 
-        if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-            if key not in self.cache_data:
-                discard_key = self.lru_list[0]
-                self.cache_data.pop(discard_key)
-                self.lru_list.pop(0)
-                print("DISCARD:", discard_key)
-
-        if key in self.lru_list:
-            self.lru_list.remove(key)
-
-        self.lru_list.append(key)
         self.cache_data[key] = item
 
+        if len(self.cache_data) > self.MAX_ITEMS:
+            discard = self.stack.pop(0)
+            del self.cache_data[discard]
+            print("DISCARD: {}".format(discard))
+
+        if key not in self.stack:
+            self.stack.append(key)
+        else:
+            self.add_as_last_in(key=key)
+
     def get(self, key):
-        """Retrieves an item from the cache"""
-        if key is None or key not in self.cache_data:
-            return None
+        """ return value from self.cache_data linked to key"""
+        value = self.cache_data.get(key, None)
+        if value is not None:
+            self.add_as_last_in(key=key)
+        return value
 
-        if key in self.lru_list:
-            self.lru_list.remove(key)
-
-        self.lru_list.append(key)
-        return self.cache_data[key]
+    def add_as_last_in(self, key):
+        """Move an element to the end of the list"""
+        if self.stack[-1] != key:
+            self.stack.remove(key)
+            self.stack.append(key)
